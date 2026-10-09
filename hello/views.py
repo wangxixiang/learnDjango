@@ -14,7 +14,10 @@ def home(request):
     return HttpResponse("Hello, Django!")
 
 def inventory_list(request):
-    invnentories = Inventory.objects.all()
+    custommer_sku=request.GET.get("customer_sku","")
+    if custommer_sku:
+        invnentories = Inventory.objects.filter(customer_product__customer_sku=custommer_sku)
+   
     return render(request, "hello/inventory_list.html", 
                   {"inventories": invnentories})
 

@@ -6,7 +6,21 @@
     </head>
     <body>
         <h1>Inventory List</h1>
-  
+  <form method="get">
+
+    <label>客户SKU：</label>
+
+    <input
+        type="text"
+        name="customer_sku"
+        value="{{ customer_sku }}"
+    >
+
+    <button type="submit">查询</button>
+
+</form>
+
+<br>
         <table border="1">
     <tr>
         <th>客户</th>
