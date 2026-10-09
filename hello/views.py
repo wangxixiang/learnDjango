@@ -5,7 +5,7 @@ from django.utils.timezone import datetime
 from django.http import HttpResponse, request
 
 from hello.models import Inventory,Warehouse, InventoryStatus
-
+from django.db.models import Sum
 
 print("http://127.0.0.1:8000/hello/VSCode")
 print("http://127.0.0.1:8000/admin")
@@ -32,6 +32,10 @@ def inventory_list(request):
     if status:
         inventories = inventories.filter(status=status)
 
+    total_quantity = inventories.aggregate(
+        total=Sum("quantity")
+    )["total"] or 0
+
     return render(request, "hello/inventory_list.html", 
                   {"inventories": inventories,
                     "customer_sku": custommer_sku, 
@@ -39,7 +43,8 @@ def inventory_list(request):
                     "warehouse_id": warehouse_id,
                     "warehouses": warehouses,
                     "status": status,
-                    "status_choices": InventoryStatus.choices
+                    "status_choices": InventoryStatus.choices,
+                    "total_quantity": total_quantity
                     })
 
 def hello_there(request, name):
