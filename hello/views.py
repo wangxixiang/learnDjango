@@ -5,6 +5,7 @@ from django.utils.timezone import datetime
 from django.http import HttpResponse
 
 print("http://127.0.0.1:8000/hello/VSCode")
+print("http://127.0.0.1:8000/admin")
 
 def home(request):
     print("home() called")
