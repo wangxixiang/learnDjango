@@ -16,7 +16,18 @@
         value="{{ customer_sku }}"
     >
 
+    <label>商品名称：</label>
+<input
+        type="text"
+        name="product_name"
+        value="{{ product_name }}"
+    >
+
     <button type="submit">查询</button>
+
+    <a href="{% url 'inventory_list' %}">
+        清空
+    </a>
 
 </form>
 

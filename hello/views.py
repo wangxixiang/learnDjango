@@ -15,11 +15,18 @@ def home(request):
 
 def inventory_list(request):
     custommer_sku=request.GET.get("customer_sku","")
+    product_name=request.GET.get("product_name","")
+    invnentories=Inventory.objects.all()
     if custommer_sku:
-        invnentories = Inventory.objects.filter(customer_product__customer_sku=custommer_sku)
-   
+        invnentories = invnentories.filter(customer_product__customer_sku=custommer_sku)
+    if product_name:
+        invnentories = invnentories.filter(customer_product__name__icontains=product_name)
+    
+
     return render(request, "hello/inventory_list.html", 
-                  {"inventories": invnentories})
+                  {"inventories": invnentories,
+                    "customer_sku": custommer_sku, 
+                    "product_name": product_name})
 
 def hello_there(request, name):
     now = datetime.now()
