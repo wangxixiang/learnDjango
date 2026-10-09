@@ -1,8 +1,10 @@
 
 import re
-
+from django.shortcuts import render
 from django.utils.timezone import datetime
 from django.http import HttpResponse
+
+from hello.models import Inventory
 
 print("http://127.0.0.1:8000/hello/VSCode")
 print("http://127.0.0.1:8000/admin")
@@ -11,6 +13,10 @@ def home(request):
     print("home() called")
     return HttpResponse("Hello, Django!")
 
+def inventory_list(request):
+    invnentories = Inventory.objects.all()
+    return render(request, "hello/inventory_list.html", 
+                  {"inventories": invnentories})
 
 def hello_there(request, name):
     now = datetime.now()
