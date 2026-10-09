@@ -22,6 +22,37 @@
         name="product_name"
         value="{{ product_name }}"
     >
+    <label>仓库：</label>
+<select name="warehouse_id">
+
+    <option value="">全部仓库</option>
+
+    {% for warehouse in warehouses %}
+        <option
+            value="{{ warehouse.id }}"
+            {% if warehouse.id|stringformat:"s" == warehouse_id %}selected{% endif %}
+        >
+            {{ warehouse.name }}
+        </option>
+    {% endfor %}
+
+</select>
+<label>状态：</label>
+
+<select name="status">
+
+    <option value="">全部状态</option>
+
+    {% for value, label in status_choices %}
+        <option
+            value="{{ value }}"
+            {% if value|stringformat:"s" == status %}selected{% endif %}
+        >
+            {{ label }}
+        </option>
+    {% endfor %}
+
+</select>
 
     <button type="submit">查询</button>
 

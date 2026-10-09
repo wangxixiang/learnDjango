@@ -2,9 +2,10 @@
 import re
 from django.shortcuts import render
 from django.utils.timezone import datetime
-from django.http import HttpResponse
+from django.http import HttpResponse, request
 
-from hello.models import Inventory
+from hello.models import Inventory,Warehouse, InventoryStatus
+
 
 print("http://127.0.0.1:8000/hello/VSCode")
 print("http://127.0.0.1:8000/admin")
@@ -16,17 +17,30 @@ def home(request):
 def inventory_list(request):
     custommer_sku=request.GET.get("customer_sku","")
     product_name=request.GET.get("product_name","")
-    invnentories=Inventory.objects.all()
+    warehouse_id=request.GET.get("warehouse_id","")
+    status = request.GET.get("status", "")
+
+    inventories=Inventory.objects.all()
+    warehouses = Warehouse.objects.all()
+
     if custommer_sku:
-        invnentories = invnentories.filter(customer_product__customer_sku=custommer_sku)
+        inventories = inventories.filter(customer_product__customer_sku=custommer_sku)
     if product_name:
-        invnentories = invnentories.filter(customer_product__name__icontains=product_name)
-    
+        inventories = inventories.filter(customer_product__name__icontains=product_name)
+    if warehouse_id:
+        inventories = inventories.filter(location__warehouse_id=warehouse_id        )
+    if status:
+        inventories = inventories.filter(status=status)
 
     return render(request, "hello/inventory_list.html", 
-                  {"inventories": invnentories,
+                  {"inventories": inventories,
                     "customer_sku": custommer_sku, 
-                    "product_name": product_name})
+                    "product_name": product_name,
+                    "warehouse_id": warehouse_id,
+                    "warehouses": warehouses,
+                    "status": status,
+                    "status_choices": InventoryStatus.choices
+                    })
 
 def hello_there(request, name):
     now = datetime.now()
