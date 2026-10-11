@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>添加入库明细</title>
+</head>
+
+<body>
+
+    <h1>添加入库明细</h1>
+
+    <p>
+        入库单号：{{ order.code }}
+    </p>
+
+    <p>
+        客户：{{ order.customer.name }}
+    </p>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <p>
+            <label>商品：</label>
+
+            <select name="customer_product" required>
+
+                {% for product in customer_products %}
+
+                <option value="{{ product.id }}">
+                    {{ product.customer_sku }} - {{ product.name }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+        </p>
+
+        <p>
+            <label>数量：</label>
+
+            <input type="number" name="quantity" min="1" required>
+        </p>
+
+        <button type="submit">
+            添加
+        </button>
+
+    </form>
+
+    <p>
+        <a href="{% url 'inbound_list' %}">
+            返回入库单列表
+        </a>
+    </p>
+
+</body>
+
+</html>

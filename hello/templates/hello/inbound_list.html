@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>入库单</title>
+</head>
+
+<body>
+
+    <h1>入库单</h1>
+
+    <table border="1">
+
+        <tr>
+            <th>入库单号</th>
+            <th>客户</th>
+            <th>仓库</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+
+        {% for order in inbound_orders %}
+
+        <tr>
+            <td>
+                <a href="{% url 'inbound_detail' order.id %}">
+                    {{ order.code }}
+                </a>
+            </td>
+            <td>{{ order.customer.name }}</td>
+            <td>{{ order.warehouse.name }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>
+                <a href="{% url 'inbound_item_create' order.id %}">
+                    添加明细
+                </a>
+            </td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</body>
+
+</html>

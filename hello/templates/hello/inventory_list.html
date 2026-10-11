@@ -1,95 +1,83 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Inventory List</title>
-        <meta charset="UTF-8">
-    </head>
-    <body>
-        <h1>Inventory List</h1>
-  <form method="get">
 
-    <label>客户SKU：</label>
+<head>
+    <title>Inventory List</title>
+    <meta charset="UTF-8">
+</head>
 
-    <input
-        type="text"
-        name="customer_sku"
-        value="{{ customer_sku }}"
-    >
+<body>
+    <h1>Inventory List</h1>
+    <form method="get">
 
-    <label>商品名称：</label>
-<input
-        type="text"
-        name="product_name"
-        value="{{ product_name }}"
-    >
-    <label>仓库：</label>
-<select name="warehouse_id">
+        <label>客户SKU：</label>
 
-    <option value="">全部仓库</option>
+        <input type="text" name="customer_sku" value="{{ customer_sku }}">
 
-    {% for warehouse in warehouses %}
-        <option
-            value="{{ warehouse.id }}"
-            {% if warehouse.id|stringformat:"s" == warehouse_id %}selected{% endif %}
-        >
-            {{ warehouse.name }}
-        </option>
-    {% endfor %}
+        <label>商品名称：</label>
+        <input type="text" name="product_name" value="{{ product_name }}">
+        <label>仓库：</label>
+        <select name="warehouse_id">
 
-</select>
-<label>状态：</label>
+            <option value="">全部仓库</option>
+{% for warehouse in warehouses %}
+    <option value="{{ warehouse.id }}"
+        {% if warehouse.id == warehouse_id %}selected{% endif %}>
+        {{ warehouse.name }}
+    </option>
+{% endfor %}
+        </select>
+        <label>状态：</label>
 
-<select name="status">
+        <select name="status">
 
-    <option value="">全部状态</option>
+            <option value="">全部状态</option>
 
-    {% for value, label in status_choices %}
-        <option
-            value="{{ value }}"
-            {% if value|stringformat:"s" == status %}selected{% endif %}
-        >
-            {{ label }}
-        </option>
-    {% endfor %}
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if value|stringformat:"s" == status %}selected{% endif %}>
+                {{ label }}
+            </option>
+            {% endfor %}
 
-</select>
+        </select>
 
-    <button type="submit">查询</button>
+        <button type="submit">查询</button>
 
-    <a href="{% url 'inventory_list' %}">
-        清空
-    </a>
+        <a href="{% url 'inventory_list' %}">
+            清空
+        </a>
 
-</form>
-<p>
-    库存数量合计：{{ total_quantity }} 件
-</p>
+    </form>
+    <p>
+        库存数量合计：{{ total_quantity }} 件
+    </p>
 
-<br>
-        <table border="1">
-    <tr>
-        <th>客户</th>
-        <th>客户SKU</th>
-        <th>商品名称</th>
-        <th>仓库</th>
-        <th>库位</th>
-        <th>数量</th>
-        <th>状态</th>
-    </tr>
+    <br>
+    <table border="1">
+        <tr>
+            <th>客户</th>
+            <th>客户SKU</th>
+            <th>商品名称</th>
+            <th>仓库</th>
+            <th>库位</th>
+            <th>数量</th>
+            <th>状态</th>
+        </tr>
 
-    {% for inventory in inventories %}
-    <tr>
-        <td>{{ inventory.customer_product.customer.name }}</td>
-        <td>{{ inventory.customer_product.customer_sku }}</td>
-        <td>{{ inventory.customer_product.name }}</td>
-        <td>{{ inventory.location.warehouse.name }}</td>
-        <td>{{ inventory.location.code }}</td>
-        <td>{{ inventory.quantity }}</td>
-        <td>{{ inventory.get_status_display }}</td>
-    </tr>
-    {% endfor %}
+        {% for inventory in inventories %}
+        <tr>
+            <td>{{ inventory.customer_product.customer.name }}</td>
+            <td>{{ inventory.customer_product.customer_sku }}</td>
+            <td>{{ inventory.customer_product.name }}</td>
+            <td>{{ inventory.location.warehouse.name }}</td>
+            <td>{{ inventory.location.code }}</td>
+            <td>{{ inventory.quantity }}</td>
+            <td>{{ inventory.get_status_display }}</td>
+        </tr>
+        {% endfor %}
 
-</table>
+    </table>
 
-    </body>
+</body>
+
 </html>

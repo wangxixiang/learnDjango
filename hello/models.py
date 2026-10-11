@@ -1,9 +1,9 @@
 from django.db import models
 
-
 # =========================
 # 1. Customer 客户
 # =========================
+
 
 class Customer(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -16,6 +16,7 @@ class Customer(models.Model):
 # =========================
 # 2. Product 标准商品
 # =========================
+
 
 class Product(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -31,19 +32,16 @@ class Product(models.Model):
 # 3. CustomerProduct 客户商品
 # =========================
 
+
 class CustomerProduct(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     customer = models.ForeignKey(
-        Customer,
-        on_delete=models.PROTECT,
-        related_name="products"
+        Customer, on_delete=models.PROTECT, related_name="products"
     )
 
     product = models.ForeignKey(
-        Product,
-        on_delete=models.PROTECT,
-        related_name="customer_products"
+        Product, on_delete=models.PROTECT, related_name="customer_products"
     )
 
     customer_sku = models.CharField(max_length=100)
@@ -52,8 +50,7 @@ class CustomerProduct(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["customer", "customer_sku"],
-                name="unique_customer_sku"
+                fields=["customer", "customer_sku"], name="unique_customer_sku"
             )
         ]
 
@@ -64,6 +61,7 @@ class CustomerProduct(models.Model):
 # =========================
 # 4. Warehouse 仓库
 # =========================
+
 
 class Warehouse(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -77,15 +75,14 @@ class Warehouse(models.Model):
 # 5. Location 库位
 # =========================
 
+
 class Location(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     code = models.CharField(max_length=100)
 
     warehouse = models.ForeignKey(
-        Warehouse,
-        on_delete=models.PROTECT,
-        related_name="locations"
+        Warehouse, on_delete=models.PROTECT, related_name="locations"
     )
 
     priority = models.IntegerField(default=0)
@@ -93,8 +90,7 @@ class Location(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["warehouse", "code"],
-                name="unique_warehouse_location"
+                fields=["warehouse", "code"], name="unique_warehouse_location"
             )
         ]
 
@@ -106,43 +102,44 @@ class Location(models.Model):
 # 6. Inventory 库存
 # =========================
 
+
 class InventoryStatus(models.IntegerChoices):
     AVAILABLE = 1, "可用"
     HOLD = 2, "冻结"
     DAMAGED = 3, "损坏"
 
 
+class InboundOrderStatus(models.Model):
+    DRAFT = 1
+    EXPECTED = 2
+    RECEIVING = 3
+    RECEIVED = 4
+    CLOSED = 5
+    CANCELLED = 6
+
+
 class Inventory(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     location = models.ForeignKey(
-        Location,
-        on_delete=models.PROTECT,
-        related_name="inventories"
+        Location, on_delete=models.PROTECT, related_name="inventories"
     )
 
     customer_product = models.ForeignKey(
-        CustomerProduct,
-        on_delete=models.PROTECT,
-        related_name="inventories"
+        CustomerProduct, on_delete=models.PROTECT, related_name="inventories"
     )
 
     quantity = models.PositiveIntegerField(default=0)
 
     status = models.SmallIntegerField(
-        choices=InventoryStatus.choices,
-        default=InventoryStatus.AVAILABLE
+        choices=InventoryStatus.choices, default=InventoryStatus.AVAILABLE
     )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=[
-                    "location",
-                    "customer_product",
-                    "status"
-                ],
-                name="unique_inventory"
+                fields=["location", "customer_product", "status"],
+                name="unique_inventory",
             )
         ]
 
@@ -153,6 +150,7 @@ class Inventory(models.Model):
 # =========================
 # 7. InboundOrder 入库单
 # =========================
+
 
 class InboundStatus(models.IntegerChoices):
     DRAFT = 1, "草稿"
@@ -169,20 +167,15 @@ class InboundOrder(models.Model):
     code = models.CharField(max_length=100)
 
     warehouse = models.ForeignKey(
-        Warehouse,
-        on_delete=models.PROTECT,
-        related_name="inbound_orders"
+        Warehouse, on_delete=models.PROTECT, related_name="inbound_orders"
     )
 
     customer = models.ForeignKey(
-        Customer,
-        on_delete=models.PROTECT,
-        related_name="inbound_orders"
+        Customer, on_delete=models.PROTECT, related_name="inbound_orders"
     )
 
     status = models.SmallIntegerField(
-        choices=InboundStatus.choices,
-        default=InboundStatus.DRAFT
+        choices=InboundStatus.choices, default=InboundStatus.DRAFT
     )
 
     def __str__(self):
@@ -193,19 +186,16 @@ class InboundOrder(models.Model):
 # 8. InboundItem 入库明细
 # =========================
 
+
 class InboundItem(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     inbound_order = models.ForeignKey(
-        InboundOrder,
-        on_delete=models.CASCADE,
-        related_name="items"
+        InboundOrder, on_delete=models.CASCADE, related_name="items"
     )
 
     customer_product = models.ForeignKey(
-        CustomerProduct,
-        on_delete=models.PROTECT,
-        related_name="inbound_items"
+        CustomerProduct, on_delete=models.PROTECT, related_name="inbound_items"
     )
 
     quantity = models.PositiveIntegerField()
@@ -217,6 +207,7 @@ class InboundItem(models.Model):
 # =========================
 # 9. OutboundOrder 出库单
 # =========================
+
 
 class OutboundStatus(models.IntegerChoices):
     DRAFT = 1, "草稿"
@@ -234,20 +225,15 @@ class OutboundOrder(models.Model):
     code = models.CharField(max_length=100)
 
     warehouse = models.ForeignKey(
-        Warehouse,
-        on_delete=models.PROTECT,
-        related_name="outbound_orders"
+        Warehouse, on_delete=models.PROTECT, related_name="outbound_orders"
     )
 
     customer = models.ForeignKey(
-        Customer,
-        on_delete=models.PROTECT,
-        related_name="outbound_orders"
+        Customer, on_delete=models.PROTECT, related_name="outbound_orders"
     )
 
     status = models.SmallIntegerField(
-        choices=OutboundStatus.choices,
-        default=OutboundStatus.DRAFT
+        choices=OutboundStatus.choices, default=OutboundStatus.DRAFT
     )
 
     def __str__(self):
@@ -258,19 +244,16 @@ class OutboundOrder(models.Model):
 # 10. OutboundItem 出库明细
 # =========================
 
+
 class OutboundItem(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     outbound_order = models.ForeignKey(
-        OutboundOrder,
-        on_delete=models.CASCADE,
-        related_name="items"
+        OutboundOrder, on_delete=models.CASCADE, related_name="items"
     )
 
     customer_product = models.ForeignKey(
-        CustomerProduct,
-        on_delete=models.PROTECT,
-        related_name="outbound_items"
+        CustomerProduct, on_delete=models.PROTECT, related_name="outbound_items"
     )
 
     quantity = models.PositiveIntegerField()
@@ -282,6 +265,7 @@ class OutboundItem(models.Model):
 # =========================
 # 11. InventoryTransaction 库存流水
 # =========================
+
 
 class InventoryTransactionType(models.IntegerChoices):
     INBOUND = 1, "入库增加"
@@ -300,29 +284,19 @@ class InventoryTransaction(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     customer_product = models.ForeignKey(
-        CustomerProduct,
-        on_delete=models.PROTECT,
-        related_name="inventory_transactions"
+        CustomerProduct, on_delete=models.PROTECT, related_name="inventory_transactions"
     )
 
-    quantity = models.IntegerField(
-        help_text="正数表示增加，负数表示减少"
-    )
+    quantity = models.IntegerField(help_text="正数表示增加，负数表示减少")
 
-    type = models.SmallIntegerField(
-        choices=InventoryTransactionType.choices
-    )
+    type = models.SmallIntegerField(choices=InventoryTransactionType.choices)
 
-    source = models.SmallIntegerField(
-        choices=InventoryTransactionSource.choices
-    )
+    source = models.SmallIntegerField(choices=InventoryTransactionSource.choices)
 
     source_foreign_id = models.BigIntegerField()
 
     location = models.ForeignKey(
-        Location,
-        on_delete=models.PROTECT,
-        related_name="inventory_transactions"
+        Location, on_delete=models.PROTECT, related_name="inventory_transactions"
     )
 
     def __str__(self):

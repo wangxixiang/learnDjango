@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>入库单详情</title>
+</head>
+
+<body>
+
+    <h1>入库单详情</h1>
+
+    <p>
+        入库单号：{{ order.code }}
+    </p>
+
+    <p>
+        客户：{{ order.customer.name }}
+    </p>
+
+    <p>
+        仓库：{{ order.warehouse.name }}
+    </p>
+
+    <p>
+        状态：{{ order.get_status_display }}
+    </p>
+    {% if order.status == 1 %}
+
+    <form method="post" action="{% url 'inbound_receive' order.id %}">
+
+        {% csrf_token %}
+
+        <button type="submit">
+            确认收货
+        </button>
+
+    </form>
+
+    {% endif %}
+    <hr>
+
+    <h2>入库明细</h2>
+
+    <table border="1">
+
+        <tr>
+            <th>客户SKU</th>
+            <th>商品名称</th>
+            <th>数量</th>
+        </tr>
+
+        {% for item in items %}
+
+        <tr>
+            <td>
+                {{ item.customer_product.customer_sku }}
+            </td>
+
+            <td>
+                {{ item.customer_product.name }}
+            </td>
+
+            <td>
+                {{ item.quantity }}
+            </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+            <td colspan="3">
+                暂无入库明细
+            </td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="{% url 'inbound_item_create' order.id %}">
+        添加明细
+    </a>
+
+    <br><br>
+
+    <a href="{% url 'inbound_list' %}">
+        返回入库单列表
+    </a>
+
+</body>
+
+</html>

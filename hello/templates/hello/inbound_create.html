@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>新建入库单</title>
+</head>
+
+<body>
+
+<h1>新建入库单</h1>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <p>
+        <label>入库单号：</label>
+
+        <input
+            type="text"
+            name="code"
+            required
+        >
+    </p>
+
+    <p>
+        <label>客户：</label>
+
+        <select name="customer" required>
+
+            {% for customer in customers %}
+
+                <option value="{{ customer.id }}">
+                    {{ customer.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+    </p>
+
+    <p>
+        <label>仓库：</label>
+
+        <select name="warehouse" required>
+
+            {% for warehouse in warehouses %}
+
+                <option value="{{ warehouse.id }}">
+                    {{ warehouse.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+    </p>
+
+    <button type="submit">
+        保存
+    </button>
+
+</form>
+
+<p>
+    <a href="{% url 'inbound_list' %}">
+        返回入库单列表
+    </a>
+</p>
+
+</body>
+</html>
