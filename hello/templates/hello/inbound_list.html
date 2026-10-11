@@ -17,6 +17,8 @@
             <th>客户</th>
             <th>仓库</th>
             <th>状态</th>
+            <th>item条数</th>
+            <th>产品数</th>
             <th>操作</th>
         </tr>
 
@@ -24,13 +26,18 @@
 
         <tr>
             <td>
+
                 <a href="{% url 'inbound_detail' order.id %}">
                     {{ order.code }}
                 </a>
+
             </td>
-            <td>{{ order.customer.name }}</td>
+            <td>{{ order.customer.name}}</td>
             <td>{{ order.warehouse.name }}</td>
             <td>{{ order.get_status_display }}</td>
+            <td>{{ order.item_count }}</td>
+            {% comment %} 默认值是0 {% endcomment %}
+            <td>{{ order.total_quantity|default:0 }}</td>
             <td>
                 <a href="{% url 'inbound_item_create' order.id %}">
                     添加明细

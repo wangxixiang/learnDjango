@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.utils.timezone import datetime
 from django.http import HttpResponse
 from django.db import transaction
+from django.db.models import Count, Sum
 
 from hello.models import (
     Inventory,
@@ -23,7 +24,11 @@ print("http://127.0.0.1:8000/admin")
 
 def home(request):
     print("home() called")
-    return HttpResponse("Hello, Django!")
+    return render(
+        request,
+        "hello/home.html",
+        {},
+    )
 
 
 @transaction.atomic
@@ -65,9 +70,15 @@ def inbound_receive(request, order_id):
     return redirect("inbound_detail", order_id=order.id)
 
 
+# List all inbound orders
 def inbound_list(request):
+    # Retrieve all inbound orders and order them by ID in descending order
     inbound_orders = InboundOrder.objects.all().order_by("-id")
-
+    inbound_orders = InboundOrder.objects.annotate(
+        # 好简洁呀，这么简单就加了两个字段，一个是从表的条数，一个是从表某个字段的求和
+        item_count=Count("items"),
+        total_quantity=Sum("items__quantity"),
+    )
     return render(
         request,
         "hello/inbound_list.html",
@@ -107,9 +118,11 @@ def inbound_create(request):
 
 
 def inbound_item_create(request, order_id):
-
+    # 上来先获取是哪个order
     order = InboundOrder.objects.get(id=order_id)
 
+    print("进入此页面的方法: " + request.method)
+    # 保存的逻辑
     if request.method == "POST":
 
         customer_product_id = request.POST.get("customer_product")
@@ -122,7 +135,7 @@ def inbound_item_create(request, order_id):
         )
 
         return redirect("inbound_list")
-
+    # 加载新页面的逻辑
     customer_products = CustomerProduct.objects.filter(customer=order.customer)
 
     return render(
