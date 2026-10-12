@@ -109,7 +109,8 @@ class InventoryStatus(models.IntegerChoices):
     DAMAGED = 3, "损坏"
 
 
-class InboundOrderStatus(models.Model):
+# models.IntegerChoices：定义一组整数状态选项，不会创建独立数据库表。
+class InboundOrderStatus(models.IntegerChoices):
     DRAFT = 1
     EXPECTED = 2
     RECEIVING = 3
@@ -118,6 +119,7 @@ class InboundOrderStatus(models.Model):
     CANCELLED = 6
 
 
+# models.Model：定义数据库中的一张表
 class Inventory(models.Model):
     id = models.BigAutoField(primary_key=True)
 
