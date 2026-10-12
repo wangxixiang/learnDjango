@@ -159,13 +159,14 @@ def inbound_detail(request, order_id):
     order = InboundOrder.objects.get(id=order_id)
 
     items = order.items.all()
-
+    can_receive = order.status == InboundOrderStatus.DRAFT
     return render(
         request,
         "hello/inbound_detail.html",
         {
             "order": order,
             "items": items,
+            "can_receive": can_receive,
         },
     )
 
