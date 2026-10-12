@@ -23,6 +23,7 @@
     </p>
 
     <p>
+        {% comment %} Django 的 Model 自动提供get_status_display {% endcomment %}
         状态：{{ order.get_status_display }}
     </p>
     {% if order.status == 1 %}

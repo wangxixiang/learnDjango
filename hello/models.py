@@ -150,6 +150,17 @@ class Inventory(models.Model):
 # =========================
 # 7. InboundOrder 入库单
 # =========================
+# DRAFT
+# 程序代码使用
+# 含义清晰，方便编写业务逻辑
+
+# 1
+# 数据库存储
+# 保存实际的状态值
+
+# 草稿
+# 页面展示
+# 仓库员工能够直接看懂
 
 
 class InboundStatus(models.IntegerChoices):

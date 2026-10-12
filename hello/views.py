@@ -7,6 +7,8 @@ from django.db.models import Count, Sum
 
 from hello.models import (
     Inventory,
+    InventoryTransactionSource,
+    InventoryTransactionType,
     Warehouse,
     InventoryStatus,
     InboundOrderStatus,
@@ -38,11 +40,14 @@ def inbound_receive(request, order_id):
 
     if request.method != "POST":
         return redirect("inbound_detail", order_id=order.id)
+    # 防止重复收货，只有草稿状态的订单才能收货
+    if order.status != InboundOrderStatus.DRAFT:
+        return redirect("inbound_detail", order_id=order.id)
 
     items = order.items.all()
 
     for item in items:
-
+        # 查询或者新增
         inventory, created = Inventory.objects.get_or_create(
             location_id=1,
             customer_product=item.customer_product,
@@ -58,8 +63,9 @@ def inbound_receive(request, order_id):
         InventoryTransaction.objects.create(
             customer_product=item.customer_product,
             quantity=item.quantity,
-            type=1,
-            source=1,
+            # 使用枚举类型，避免魔法数字
+            type=InventoryTransactionType.INBOUND,
+            source=InventoryTransactionSource.INBOUND_ORDER,
             source_foreign_id=order.id,
             location_id=1,
         )
