@@ -1,7 +1,8 @@
 import re
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.utils.timezone import datetime
-from django.http import HttpResponse
+from django.http import HttpResponse, request
 from django.db import transaction
 from django.db.models import Count, Sum
 
@@ -42,6 +43,7 @@ def inbound_receive(request, order_id):
         return redirect("inbound_detail", order_id=order.id)
     # 防止重复收货，只有草稿状态的订单才能收货
     if order.status != InboundOrderStatus.DRAFT:
+        messages.warning(request, "该入库单已处理，不能重复收货。")
         return redirect("inbound_detail", order_id=order.id)
 
     items = order.items.all()
@@ -72,7 +74,10 @@ def inbound_receive(request, order_id):
 
     order.status = InboundOrderStatus.RECEIVED
     order.save()
-
+    messages.success(
+        request,
+        f"入库单 {order.code} 已收货成功！",
+    )
     return redirect("inbound_detail", order_id=order.id)
 
 

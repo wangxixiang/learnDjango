@@ -4,9 +4,45 @@
 <head>
     <meta charset="UTF-8">
     <title>入库单详情</title>
+
+    <style>
+        .message {
+            padding: 12px 16px;
+            margin: 12px 0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .message.success {
+            color: #166534;
+            background-color: #dcfce7;
+            border: 1px solid #86efac;
+        }
+
+        .message.warning {
+            color: #854d0e;
+            background-color: #fef3c7;
+            border: 1px solid #fcd34d;
+        }
+    </style>
+
 </head>
 
 <body>
+    {% comment %} 显示消息 {% endcomment %}
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    {% comment %} 显示带颜色的消息 {% endcomment %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
     <h1>入库单详情</h1>
 
