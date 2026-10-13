@@ -138,6 +138,15 @@ def inbound_item_create(request, order_id):
 
         customer_product_id = request.POST.get("customer_product")
         quantity = request.POST.get("quantity")
+        # 验证数量是否为大于 0 的整数
+        try:
+            quantity = int(quantity)
+            if quantity <= 0:
+                messages.warning(request, "数量必须大于 0。")
+                return redirect("inbound_item_create", order_id=order.id)
+        except ValueError:
+            messages.warning(request, "数量必须是大于 0 的整数。")
+            return redirect("inbound_item_create", order_id=order.id)
         # 防止重复添加同一个产品
         if InboundItem.objects.filter(
             inbound_order=order, customer_product_id=customer_product_id
