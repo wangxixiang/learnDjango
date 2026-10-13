@@ -138,6 +138,13 @@ def inbound_item_create(request, order_id):
 
         customer_product_id = request.POST.get("customer_product")
         quantity = request.POST.get("quantity")
+        # 防止重复添加同一个产品
+        if InboundItem.objects.filter(
+            inbound_order=order, customer_product_id=customer_product_id
+        ).exists():
+            messages.warning(request, "该产品已存在，请勿重复添加。")
+            print("该产品已存在，请勿重复添加。")
+            return redirect("inbound_item_create", order_id=order.id)
 
         InboundItem.objects.create(
             inbound_order=order,

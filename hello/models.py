@@ -213,6 +213,14 @@ class InboundItem(models.Model):
 
     quantity = models.PositiveIntegerField()
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["inbound_order", "customer_product"],
+                name="unique_inbound_order_product",
+            )
+        ]
+
     def __str__(self):
         return f"{self.inbound_order.code} - {self.customer_product.customer_sku}"
 
