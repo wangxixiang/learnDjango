@@ -147,6 +147,13 @@ def inbound_item_create(request, order_id):
         except ValueError:
             messages.warning(request, "数量必须是大于 0 的整数。")
             return redirect("inbound_item_create", order_id=order.id)
+        # 防止添加别的客户的商品
+        if not CustomerProduct.objects.filter(
+            id=customer_product_id, customer_id=order.customer_id
+        ).exists():
+            messages.warning(request, "别的客户的产品，不能加到此客户的订单上")
+            print("别的客户的产品，不能加到此客户的订单上")
+            return redirect("inbound_item_create", order_id=order.id)
         # 防止重复添加同一个产品
         if InboundItem.objects.filter(
             inbound_order=order, customer_product_id=customer_product_id
