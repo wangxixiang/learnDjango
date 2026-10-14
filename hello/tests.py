@@ -86,3 +86,22 @@ class InboundItemTest(TestCase):
 # 正确值会失败
 # def test_valid_quantity_rejected(self):
 #     self.assert_invalid_quantity("1")
+
+
+def test_valid_quantity_accepted(self):
+    url = reverse("inbound_item_create", args=[self.order.id])
+    before_count = self.order.items.count()
+
+    response = self.client.post(
+        url,
+        {
+            "customer_product": self.customer_product.id,
+            "quantity": "1",
+        },
+    )
+
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(self.order.items.count(), before_count + 1)
+
+    item = self.order.items.get(customer_product=self.customer_product)
+    self.assertEqual(item.quantity, 1)
