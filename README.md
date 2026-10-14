@@ -14,3 +14,6 @@ python manage.py makemigrations
 
 # 执行迁移文件，真正调整数据库结构
 python manage.py migrate
+
+# 运行测试用例
+python manage.py test hello

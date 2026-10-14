@@ -47,7 +47,8 @@ class InboundItemTest(TestCase):
         self.assertEqual(self.warehouse.name, "测试仓库")
         self.assertEqual(self.order.code, "TEST-IN-001")
 
-    def test_zero_quantity_rejected(self):
+    # 抽取出方法，注意前缀
+    def assert_invalid_quantity(self, quantity):
         url = reverse(
             "inbound_item_create",
             args=[self.order.id],
@@ -59,9 +60,29 @@ class InboundItemTest(TestCase):
             url,
             {
                 "customer_product": self.customer_product.id,
-                "quantity": "0",
+                "quantity": quantity,
             },
         )
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.order.items.count(), before_count)
+
+    def test_negative_quantity_rejected(self):
+        self.assert_invalid_quantity("-5")
+
+    def test_non_integer_quantity_rejected(self):
+        self.assert_invalid_quantity("abc")
+
+    def test_empty_quantity_rejected(self):
+        self.assert_invalid_quantity("")
+
+    def test_0_rejected(self):
+        self.assert_invalid_quantity("0")
+
+    def test_decimal_quantity_rejected(self):
+        self.assert_invalid_quantity("2.5")
+
+
+# 正确值会失败
+# def test_valid_quantity_rejected(self):
+#     self.assert_invalid_quantity("1")
