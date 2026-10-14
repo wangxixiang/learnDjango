@@ -2,6 +2,8 @@ from django.test import TestCase
 from django.urls import reverse
 from hello.models import (
     Customer,
+    InboundItem,
+    InboundOrderStatus,
     Product,
     CustomerProduct,
     Warehouse,
@@ -128,3 +130,29 @@ class InboundItemTest(TestCase):
 
         item = self.order.items.get(customer_product=self.customer_product)
         self.assertEqual(item.quantity, 1)
+
+    # 测试已经收货的订单不能再添加新的入库明细
+    def test_received_order_rejects_new_item(self):
+
+        self.order.status = InboundOrderStatus.RECEIVED
+        self.order.save()
+        # # 6. 创建入库单明细
+        # self.item = InboundItem.objects.create(
+        #     inbound_order=self.order,
+        #     customer_product=self.customer_product,
+        #     quantity=1,
+        # )
+        url = reverse("inbound_item_create", args=[self.order.id])
+        before_count = self.order.items.count()
+        print("before_count:", before_count)
+        response = self.client.post(
+            url,
+            {
+                "customer_product": self.customer_product.id,
+                "quantity": "1",
+            },
+        )
+
+        print("after_count:", self.order.items.count())
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.order.items.count(), before_count)

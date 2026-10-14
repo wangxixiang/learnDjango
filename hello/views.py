@@ -135,7 +135,10 @@ def inbound_item_create(request, order_id):
     print("进入此页面的方法: " + request.method)
     # 保存的逻辑
     if request.method == "POST":
-
+        # 防止已收货的订单再次添加item
+        if order.status == InboundOrderStatus.RECEIVED:
+            messages.warning(request, "该入库单已收货，不能再添加新的入库明细。")
+            return redirect("inbound_item_create", order_id=order.id)
         customer_product_id = request.POST.get("customer_product")
         quantity = request.POST.get("quantity")
         # 验证数量是否为大于 0 的整数
@@ -147,6 +150,7 @@ def inbound_item_create(request, order_id):
         except ValueError:
             messages.warning(request, "数量必须是大于 0 的整数。")
             return redirect("inbound_item_create", order_id=order.id)
+
         # 防止添加别的客户的商品
         if not CustomerProduct.objects.filter(
             id=customer_product_id, customer_id=order.customer_id
