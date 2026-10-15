@@ -9,6 +9,7 @@ from hello.models import (
     Warehouse,
     InboundOrder,
 )
+from django.db import IntegrityError, transaction
 
 
 class InboundItemTest(TestCase):
@@ -176,4 +177,24 @@ class InboundItemTest(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.order.items.count(), before_count)
+
+    def test_database_rejects_duplicate_item(self):
+        # 6. 创建入库单明细
+        InboundItem.objects.create(
+            inbound_order=self.order,
+            customer_product=self.customer_product,
+            quantity=1,
+        )
+        before_count = self.order.items.count()
+        # 尝试直接在数据库中创建重复的入库单明细，应该会抛出IntegrityError异常
+        with self.assertRaises(IntegrityError):
+            # 使用 transaction.atomic() 隔离这次失败的数据库操作。
+            with transaction.atomic():
+                InboundItem.objects.create(
+                    inbound_order=self.order,
+                    customer_product=self.customer_product,
+                    quantity=1,
+                )
+
         self.assertEqual(self.order.items.count(), before_count)
