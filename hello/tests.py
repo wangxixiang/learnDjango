@@ -189,7 +189,7 @@ class InboundItemTest(TestCase):
         before_count = self.order.items.count()
         # 尝试直接在数据库中创建重复的入库单明细，应该会抛出IntegrityError异常
         with self.assertRaises(IntegrityError):
-            # 使用 transaction.atomic() 隔离这次失败的数据库操作。
+            # 使用 transaction.atomic() 开启一个数据库事务，保证这个事务块中的数据库操作能够作为一个整体提交或回滚。隔离这次失败的数据库操作。
             with transaction.atomic():
                 InboundItem.objects.create(
                     inbound_order=self.order,

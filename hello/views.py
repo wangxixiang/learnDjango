@@ -34,6 +34,10 @@ def home(request):
     )
 
 
+# 这个事务保护的是一整套收货操作：
+# 1. 更新库存数量。
+# 2. 创建库存流水。
+# 3. 将入库单状态改为已收货。
 @transaction.atomic
 def inbound_receive(request, order_id):
 
