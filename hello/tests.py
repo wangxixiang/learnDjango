@@ -156,3 +156,24 @@ class InboundItemTest(TestCase):
         print("after_count:", self.order.items.count())
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.order.items.count(), before_count)
+
+    # 检查重复提交，普通post请求提交相同的商品和数量，应该被拒绝
+    def test_duplicate_item_rejected(self):
+        # 6. 创建入库单明细
+        InboundItem.objects.create(
+            inbound_order=self.order,
+            customer_product=self.customer_product,
+            quantity=1,
+        )
+        before_count = self.order.items.count()
+        url = reverse("inbound_item_create", args=[self.order.id])
+        response = self.client.post(
+            url,
+            {
+                "customer_product": self.customer_product.id,
+                "quantity": "1",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.order.items.count(), before_count)
