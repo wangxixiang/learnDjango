@@ -17,3 +17,5 @@ python manage.py migrate
 
 # 运行测试用例
 python manage.py test hello
+python manage.py test hello.tests.test_inbound_receive
+python manage.py test hello.tests.test_inbound_item
