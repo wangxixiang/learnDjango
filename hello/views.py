@@ -91,12 +91,11 @@ def inbound_receive(request, order_id):
 # List all inbound orders
 def inbound_list(request):
     # Retrieve all inbound orders and order them by ID in descending order
-    inbound_orders = InboundOrder.objects.all().order_by("-id")
     inbound_orders = InboundOrder.objects.annotate(
         # 好简洁呀，这么简单就加了两个字段，一个是从表的条数，一个是从表某个字段的求和
         item_count=Count("items"),
         total_quantity=Sum("items__quantity"),
-    )
+    ).order_by("-id")
     return render(
         request,
         "hello/inbound_list.html",
