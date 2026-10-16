@@ -10,6 +10,7 @@ from hello.models import (
     Inventory,
     InventoryTransactionSource,
     InventoryTransactionType,
+    Location,
     Warehouse,
     InventoryStatus,
     InboundOrderStatus,
@@ -19,7 +20,6 @@ from hello.models import (
     InboundItem,
     InventoryTransaction,
 )
-from django.db.models import Sum
 
 print("http://127.0.0.1:8000/hello/VSCode")
 print("http://127.0.0.1:8000/admin")
@@ -51,11 +51,14 @@ def inbound_receive(request, order_id):
         return redirect("inbound_detail", order_id=order.id)
 
     items = order.items.all()
-
+    location = Location.objects.get(
+        warehouse=order.warehouse,
+        code="RECEIVING-01",
+    )
     for item in items:
         # 查询或者新增
         inventory, created = Inventory.objects.get_or_create(
-            location_id=1,
+            location_id=location.id,
             customer_product=item.customer_product,
             status=InventoryStatus.AVAILABLE,
             defaults={
