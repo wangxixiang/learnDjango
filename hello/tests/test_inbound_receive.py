@@ -4,6 +4,9 @@ from hello.models import (
     Customer,
     InboundItem,
     InboundOrderStatus,
+    Inventory,
+    InventoryStatus,
+    InventoryTransaction,
     Location,
     Product,
     CustomerProduct,
@@ -55,3 +58,28 @@ class InboundReceiveTest(TestCase):
             warehouse=self.warehouse,
             code="RECEIVING-01",
         )
+
+    def test_regular_receive(self):
+
+        beforeInventoryTransactionCount = InventoryTransaction.objects.all().count()
+        # 1. 发送收货请求
+        response = self.client.post(reverse("inbound_receive", args=[self.order.id]))
+        afterInventoryCount = Inventory.objects.get(
+            location=self.location,
+            customer_product=self.order.items.first().customer_product,
+            status=InventoryStatus.AVAILABLE,
+        ).quantity
+
+        afterInventoryTransactionCount = InventoryTransaction.objects.all().count()
+        # 从数据库重新读取数据，更新当前 self.order 对象的字段值
+        self.order.refresh_from_db()
+
+        # 2. 检查响应状态码是否为302（重定向）
+        self.assertEqual(response.status_code, 302)
+        # 3. 检查入库单状态是否已更新为已收货
+        self.assertEqual(
+            self.order.items.first().quantity,
+            afterInventoryCount,
+        )
+        self.assertEqual(1, afterInventoryTransactionCount)
+        self.assertEqual(self.order.status, InboundOrderStatus.RECEIVED)
