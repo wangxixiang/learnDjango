@@ -13,7 +13,6 @@ from hello.models import (
     Warehouse,
     InboundOrder,
 )
-from django.db import IntegrityError, transaction
 
 
 class InboundReceiveTest(TestCase):
