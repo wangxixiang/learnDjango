@@ -83,3 +83,27 @@ class InboundReceiveTest(TestCase):
         )
         self.assertEqual(1, afterInventoryTransactionCount)
         self.assertEqual(self.order.status, InboundOrderStatus.RECEIVED)
+
+    def test_receive_with_duplicate(self):
+        # 1. 发送第一次收货请求
+        response1 = self.client.post(reverse("inbound_receive", args=[self.order.id]))
+        # 2. 发送第二次收货请求
+        response2 = self.client.post(reverse("inbound_receive", args=[self.order.id]))
+
+        # 从数据库重新读取数据，更新当前 self.order 对象的字段值
+        self.order.refresh_from_db()
+        afterInventoryTransactionCount = InventoryTransaction.objects.all().count()
+        self.assertEqual(1, afterInventoryTransactionCount)
+        afterInventoryCount = Inventory.objects.get(
+            location=self.location,
+            customer_product=self.order.items.first().customer_product,
+            status=InventoryStatus.AVAILABLE,
+        ).quantity
+        self.assertEqual(1, afterInventoryCount)
+
+        # 3. 检查第一次响应状态码是否为302（重定向）
+        self.assertEqual(response1.status_code, 302)
+        # 4. 检查第二次响应状态码是否为400（错误请求）,代码里捕获异常了。
+        self.assertEqual(response2.status_code, 302)
+        # 5. 检查入库单状态是否仍为已收货
+        self.assertEqual(self.order.status, InboundOrderStatus.RECEIVED)
