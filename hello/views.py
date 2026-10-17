@@ -68,7 +68,11 @@ def inbound_receive(request, order_id):
 
         inventory.quantity += item.quantity
         inventory.save()
-
+        # 这里写死了一个库位，虽然是查出来的
+        location = Location.objects.get(
+            warehouse=order.warehouse,
+            code="RECEIVING-01",
+        )
         InventoryTransaction.objects.create(
             customer_product=item.customer_product,
             quantity=item.quantity,
@@ -76,7 +80,7 @@ def inbound_receive(request, order_id):
             type=InventoryTransactionType.INBOUND,
             source=InventoryTransactionSource.INBOUND_ORDER,
             source_foreign_id=order.id,
-            location_id=1,
+            location_id=location.id,
         )
 
     order.status = InboundOrderStatus.RECEIVED

@@ -106,3 +106,7 @@ class InboundReceiveTest(TestCase):
         self.assertEqual(response2.status_code, 302)
         # 5. 检查入库单状态是否仍为已收货
         self.assertEqual(self.order.status, InboundOrderStatus.RECEIVED)
+        self.assertEqual(
+            InventoryTransaction.objects.get().location,
+            self.location,
+        )
