@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from unittest.mock import patch
 from hello.models import (
     Customer,
     InboundItem,
@@ -110,3 +111,31 @@ class InboundReceiveTest(TestCase):
             InventoryTransaction.objects.get().location,
             self.location,
         )
+
+    # 测试mock patch，模拟库存流水创建失败，确保事务回滚
+    def test_receive_rolls_back_when_inventory_transaction_creation_fails(self):
+        inventory = Inventory.objects.create(
+            location=self.location,
+            customer_product=self.customer_product,
+            quantity=5,
+            status=InventoryStatus.AVAILABLE,
+        )
+        transaction_count_before = InventoryTransaction.objects.count()
+        #       # 模拟库存流水创建失败，抛出异常
+        with patch(
+            # 路径为 hello/views.py 中的 InventoryTransaction.create 方法
+            "hello.views.InventoryTransaction.objects.create",
+            # side_effect 参数指定了一个异常，当调用该方法时会抛出这个异常
+            side_effect=RuntimeError("Simulated inventory transaction failure"),
+        ):
+            # 使用 assertRaises 上下文管理器来捕获异常，确保在事务中抛出异常时，事务会回滚
+            with self.assertRaises(RuntimeError):
+                self.client.post(reverse("inbound_receive", args=[self.order.id]))
+
+        inventory.refresh_from_db()
+        self.order.refresh_from_db()
+
+        self.assertEqual(inventory.quantity, 5)
+        self.assertEqual(InventoryTransaction.objects.count(), transaction_count_before)
+        self.assertEqual(self.order.status, InboundOrderStatus.DRAFT)
+        self.assertEqual(Inventory.objects.count(), 1)
