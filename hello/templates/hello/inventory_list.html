@@ -16,6 +16,17 @@
 
         <label>商品名称：</label>
         <input type="text" name="product_name" value="{{ product_name }}">
+
+        <label>客户：</label>
+        <select name="customer_id">
+            <option value="">全部客户</option>
+            {% for customer in customers %}
+            <option value="{{ customer.id }}" {% if customer.id|stringformat:"s" == customer_id %}selected{% endif %}>
+                {{ customer.name }}
+            </option>
+            {% endfor %}
+        </select>
+
         <label>仓库：</label>
         <select name="warehouse_id">
 
@@ -28,6 +39,9 @@
 {% endfor %}
         </select>
         <label>状态：</label>
+
+        <label>库位编码：</label>
+        <input type="text" name="location_code" value="{{ location_code }}">
 
         <select name="status">
 

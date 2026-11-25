@@ -1,6 +1,7 @@
 this is a new project for me to learn django
 
-
+# 启动应用
+.\.venv\Scripts\python.exe manage.py runserver
 
 # backup db
 Copy-Item .\db.sqlite3 ..\learnDjangoDBback\db_backup_20261012.sqlite3

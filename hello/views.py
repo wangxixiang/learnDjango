@@ -216,18 +216,25 @@ def inbound_detail(request, order_id):
 def inventory_list(request):
     custommer_sku = request.GET.get("customer_sku", "")
     product_name = request.GET.get("product_name", "")
+    customer_id = request.GET.get("customer_id", "")
     warehouse_id = request.GET.get("warehouse_id", "")
+    location_code = request.GET.get("location_code", "")
     status = request.GET.get("status", "")
 
     inventories = Inventory.objects.all()
+    customers = Customer.objects.all()
     warehouses = Warehouse.objects.all()
 
     if custommer_sku:
         inventories = inventories.filter(customer_product__customer_sku=custommer_sku)
     if product_name:
         inventories = inventories.filter(customer_product__name__icontains=product_name)
+    if customer_id:
+        inventories = inventories.filter(customer_product__customer=customer_id)
     if warehouse_id:
         inventories = inventories.filter(location__warehouse_id=warehouse_id)
+    if location_code:
+        inventories = inventories.filter(location__code=location_code)
     if status:
         inventories = inventories.filter(status=status)
 
@@ -240,8 +247,11 @@ def inventory_list(request):
             "inventories": inventories,
             "customer_sku": custommer_sku,
             "product_name": product_name,
+            "customer_id": customer_id,
+            "customers": customers,
             "warehouse_id": warehouse_id,
             "warehouses": warehouses,
+            "location_code": location_code,
             "status": status,
             "status_choices": InventoryStatus.choices,
             "total_quantity": total_quantity,
