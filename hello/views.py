@@ -5,6 +5,7 @@ from django.utils.timezone import datetime
 from django.http import HttpResponse, request
 from django.db import transaction
 from django.db.models import Count, Sum
+from django.core.paginator import Paginator
 
 from hello.models import (
     Inventory,
@@ -239,12 +240,19 @@ def inventory_list(request):
         inventories = inventories.filter(status=status)
 
     total_quantity = inventories.aggregate(total=Sum("quantity"))["total"] or 0
+    paginator = Paginator(inventories.order_by("id"), 20)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    query_params = request.GET.copy()
+    query_params.pop("page", None)
 
     return render(
         request,
         "hello/inventory_list.html",
         {
-            "inventories": inventories,
+            "inventories": page_obj,
+            "page_obj": page_obj,
+            "paginator": paginator,
+            "filter_query": query_params.urlencode(),
             "customer_sku": custommer_sku,
             "product_name": product_name,
             "customer_id": customer_id,
