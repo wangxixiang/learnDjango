@@ -15,6 +15,7 @@ from hello.models import (
     Warehouse,
     InventoryStatus,
     InboundOrderStatus,
+    InboundStatus,
     InboundOrder,
     Customer,
     CustomerProduct,
@@ -95,17 +96,45 @@ def inbound_receive(request, order_id):
 
 # List all inbound orders
 def inbound_list(request):
-    # Retrieve all inbound orders and order them by ID in descending order
+    inbound_number = request.GET.get("inbound_number", "")
+    customer_id = request.GET.get("customer_id", "")
+    warehouse_id = request.GET.get("warehouse_id", "")
+    status = request.GET.get("status", "")
+
     inbound_orders = InboundOrder.objects.annotate(
         # 好简洁呀，这么简单就加了两个字段，一个是从表的条数，一个是从表某个字段的求和
         item_count=Count("items"),
         total_quantity=Sum("items__quantity"),
     ).order_by("-id")
+    if inbound_number:
+        inbound_orders = inbound_orders.filter(code__icontains=inbound_number)
+    if customer_id:
+        inbound_orders = inbound_orders.filter(customer_id=customer_id)
+    if warehouse_id:
+        inbound_orders = inbound_orders.filter(warehouse_id=warehouse_id)
+    if status:
+        inbound_orders = inbound_orders.filter(status=status)
+
+    paginator = Paginator(inbound_orders, 5)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    query_params = request.GET.copy()
+    query_params.pop("page", None)
+
     return render(
         request,
         "hello/inbound_list.html",
         {
-            "inbound_orders": inbound_orders,
+            "inbound_orders": page_obj,
+            "page_obj": page_obj,
+            "paginator": paginator,
+            "filter_query": query_params.urlencode(),
+            "inbound_number": inbound_number,
+            "customer_id": customer_id,
+            "warehouse_id": warehouse_id,
+            "status": status,
+            "customers": Customer.objects.all(),
+            "warehouses": Warehouse.objects.all(),
+            "status_choices": InboundStatus.choices,
         },
     )
 

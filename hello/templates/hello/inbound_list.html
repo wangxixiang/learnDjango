@@ -10,6 +10,38 @@
 
     <h1>入库单</h1>
 
+    <form method="get">
+        <label for="inbound_number">入库单号</label>
+        <input id="inbound_number" type="text" name="inbound_number" value="{{ inbound_number }}">
+
+        <label for="customer_id">客户</label>
+        <select id="customer_id" name="customer_id">
+            <option value="">全部客户</option>
+            {% for customer in customers %}
+            <option value="{{ customer.id }}" {% if customer.id|stringformat:"s" == customer_id %}selected{% endif %}>{{ customer.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="warehouse_id">仓库</label>
+        <select id="warehouse_id" name="warehouse_id">
+            <option value="">全部仓库</option>
+            {% for warehouse in warehouses %}
+            <option value="{{ warehouse.id }}" {% if warehouse.id|stringformat:"s" == warehouse_id %}selected{% endif %}>{{ warehouse.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="status">状态</label>
+        <select id="status" name="status">
+            <option value="">全部状态</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if value|stringformat:"s" == status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">查询</button>
+        <a href="{% url 'inbound_list' %}">清空</a>
+    </form>
+
     <table border="1">
 
         <tr>
@@ -47,7 +79,34 @@
 
         {% endfor %}
 
+        {% if not inbound_orders %}
+        <tr><td colspan="7">没有找到符合条件的入库单。</td></tr>
+        {% endif %}
+
     </table>
+
+    <nav aria-label="Inbound order pagination">
+        <p>第 {{ page_obj.number }} 页 / 共 {{ paginator.num_pages }} 页；符合条件的总记录数：{{ paginator.count }}</p>
+        {% if page_obj.has_previous %}
+        <a href="?{% if filter_query %}{{ filter_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">上一页</a>
+        {% else %}
+        <span aria-disabled="true">上一页</span>
+        {% endif %}
+
+        {% for page_number in paginator.page_range %}
+            {% if page_number == page_obj.number %}
+            <strong aria-current="page">{{ page_number }}</strong>
+            {% else %}
+            <a href="?{% if filter_query %}{{ filter_query }}&amp;{% endif %}page={{ page_number }}">{{ page_number }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?{% if filter_query %}{{ filter_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}">下一页</a>
+        {% else %}
+        <span aria-disabled="true">下一页</span>
+        {% endif %}
+    </nav>
 
 </body>
 
